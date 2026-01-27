@@ -1,0 +1,82 @@
+// Prisma Client 생성 설정
+generator client {
+    provider = "prisma-client"
+    output   = "../generated/prisma"
+}
+
+// 데이터베이스 연결 설정
+datasource db {
+    provider = "postgresql"
+}
+
+model Study {
+    id              String   @id @db.VarChar(26)
+    title           String
+    nickname        String
+    description     String
+    backgroundImage String
+    password        String
+    totalPoint      Int      @default(0)
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    habits        Habit[]
+    focusSessions FocusSession[]
+    emojis        StudyEmoji[]
+
+    @@map("study")
+}
+
+model Habit {
+    id        String    @id @db.VarChar(26)
+    studyId   String    @db.VarChar(26)
+    title     String
+    startDate DateTime  @db.Date
+    endDate   DateTime? @db.Date
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    study Study      @relation(fields: [studyId], references: [id], onDelete: Cascade)
+    logs  HabitLog[]
+
+    @@map("habit")
+}
+
+model HabitLog {
+    id        String   @id @db.VarChar(26)
+    habitId   String   @db.VarChar(26)
+    logDate   DateTime @db.Date
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+    @@unique([habitId, logDate])
+    @@map("habit_log")
+}
+
+model FocusSession {
+    id           String   @id @db.VarChar(26)
+    studyId      String   @db.VarChar(26)
+    targetTime   Int
+    activeTime   Int
+    pauseUsed    Boolean  @default(false)
+    earnedPoints Int      @default(0)
+    createdAt    DateTime @default(now())
+
+    study Study @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    @@map("focus_session")
+}
+
+model StudyEmoji {
+    id        String   @id @db.VarChar(26)
+    studyId   String   @db.VarChar(26)
+    emoji     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    study Study @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+    @@map("study_emoji")
+}

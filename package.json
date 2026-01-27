@@ -1,0 +1,50 @@
+{
+  "name": "forest_of_study_backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "server.js",
+  "imports": {
+    "#generated/*": "./generated/*",
+    "#repository": "./src/repository/index.js",
+    "#config": "./src/config/config.js",
+    "#db/*": "./src/db/*",
+    "#middlewares/*": "./src/middlewares/*"
+  },
+  "engines": {
+    "node": ">=24.11.0"
+  },
+  "scripts": {
+    "dev": "nodemon --env-file=./.env/.env.development src/server.js",
+    "start": "node src/server.js",
+    "prisma:migrate": "dotenv -e ./.env/.env.development -- npx prisma migrate dev",
+    "prisma:studio": "dotenv -e ./.env/.env.development -- npx prisma studio",
+    "prisma:generate": "dotenv -e ./.env/.env.development -- npx prisma generate",
+    "seed": "node --env-file=./.env/.env.development scripts/seed.js",
+    "format": "prettier --write src/**/*.js",
+    "format:check": "prettier --check src/**/*.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "dotenv": "^17.2.3",
+    "dotenv-cli": "^11.0.0",
+    "express": "^5.2.1",
+    "pg": "^8.17.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "ulid": "^3.0.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@faker-js/faker": "^10.2.0",
+    "eslint": "^9.39.2",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1",
+    "prisma": "^7.3.0"
+  }
+}

@@ -1,0 +1,115 @@
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 400
+            code:
+              type: string
+              example: NOT_FOUND
+            message:
+              type: string
+              example: 스터디 리스트가 존재하지 않습니다
+
+    StudyListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 01HAAA...
+              title:
+                type: string
+                example: 연우의 개발공장
+              nickname:
+                type: string
+                example: J
+              description:
+                type: string
+                example: 함께 성장하는 스터디입니다
+              backgroundImage:
+                type: string
+                example: https://.../bg1.png
+              totalPoint:
+                type: integer
+                example: 310
+              createdAt:
+                type: string
+                format: date-time
+              emojis:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    emoji:
+                      type: string
+                      example: 🔥
+                    count:
+                      type: integer
+                      example: 12
+        pageInfo:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+              example: 6
+            nextCursor:
+              type: string
+              nullable: true
+              example: 01HAAB...
+
+paths:
+  /studies:
+    get:
+      summary: 스터디 목록 조회
+      tags: [Studies]
+      security: []
+      parameters:
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 6
+          description: 페이지 크기
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: 검색어 (제목, 설명에서 검색)
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [recent, oldest, mostPoints, leastPoints]
+            default: recent
+          description: 정렬 기준
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          description: 커서 (페이지네이션)
+      responses:
+        200:
+          description: 스터디 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyListResponse'
+        404:
+          description: 스터디 리스트가 존재하지 않습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
