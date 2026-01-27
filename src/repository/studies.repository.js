@@ -1,4 +1,6 @@
 import { prisma } from '#db/prisma.js';
+import { transformEmojiCounts } from '../utils/emoji.utils.js';
+import { transformHabitWeek } from '../utils/habit.utils.js';
 
 // 모든 스터디 조회 및 페이지네이션 하나로
 async function findStudiesPaged({
@@ -51,6 +53,7 @@ async function findStudiesPaged({
       backgroundImage: true,
       totalPoint: true,
       createdAt: true,
+      updatedAt: true,
       emojis: {
         select: { emoji: true },
       },
@@ -60,31 +63,10 @@ async function findStudiesPaged({
   const hasNextPage = studies.length > pageSize;
   const items = hasNextPage ? studies.slice(0, -1) : studies;
 
-  const itemsWithEmojiCounts = items.map((study) => {
-    const emojiCounts = study.emojis.reduce((acc, { emoji }) => {
-      acc[emoji] = (acc[emoji] || 0) + 1;
-      return acc;
-    }, {});
-    // emojiCounts (결과값)
-    //{ '🔥': 12, '👍': 7, '🌱': 3 }
-    console.log(emojiCounts, 'emojiCounts');
-
-    const emojis = Object.entries(emojiCounts).map(([emoji, count]) => ({
-      emoji,
-      count,
-    }));
-    console.log(emojis, 'emojis');
-    return { ...study, emojis };
-  });
-  // Object.entries() → [키, 값] 배열로 변환
-  //[['🔥', 12], ['👍', 7], ['🌱', 3]]
-
-  // .map() → 객체 배열로 변환
-  //[
-  //  { emoji: '🔥', count: 12 },
-  // { emoji: '👍', count: 7 },
-  //{ emoji: '🌱', count: 3 }
-  //]
+  const itemsWithEmojiCounts = items.map((study) => ({
+    ...study,
+    emojis: transformEmojiCounts(study.emojis),
+  }));
 
   return {
     success: true,
@@ -96,6 +78,48 @@ async function findStudiesPaged({
   };
 }
 
+// 스터디 상세조회
+async function findStudyById(id) {
+  const studyDetail = await prisma.study.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      nickname: true,
+      description: true,
+      backgroundImage: true,
+      totalPoint: true,
+      createdAt: true,
+      updatedAt: true,
+      emojis: {
+        select: { emoji: true },
+      },
+      habits: {
+        select: {
+          id: true,
+          title: true,
+          logs: {
+            select: {
+              id: true,
+              logDate: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // habits 원본 제거하고 구조 정리
+  const { habits, emojis, ...studyInfo } = studyDetail;
+
+  return {
+    study: studyInfo,
+    emojis: transformEmojiCounts(emojis),
+    habitWeek: transformHabitWeek(habits),
+  };
+}
+
 export const studiesRepository = {
   findStudiesPaged,
+  findStudyById,
 };

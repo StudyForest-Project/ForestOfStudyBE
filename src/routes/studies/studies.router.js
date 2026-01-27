@@ -6,8 +6,10 @@ import { BadRequestException } from '../../errors/badRequestException.js';
 
 export const studiesRouter = express.Router();
 
+//METHOD:GET studies?
 studiesRouter.get('/', async (req, res) => {
   const { pageSize, search, sort, cursor } = req.query;
+
   if (cursor) {
     const exists = await prisma.study.findUnique({ where: { id: cursor } });
     if (!exists) {
@@ -26,4 +28,13 @@ studiesRouter.get('/', async (req, res) => {
   }
 
   res.json(studiesList);
+});
+
+//METHOD:GET studies/:id
+studiesRouter.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  const studyItem = await studiesRepository.findStudyById(id);
+
+  res.json(studyItem);
 });
