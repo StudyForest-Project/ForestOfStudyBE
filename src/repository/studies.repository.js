@@ -3,10 +3,7 @@ import { emoji } from 'zod';
 import { transformEmojiCounts } from '../utils/emoji.utils.js';
 import { transformHabitWeek } from '../utils/habit.utils.js';
 import { ulid } from 'ulid';
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 // 모든 스터디 조회 및 페이지네이션 하나로
 async function findStudiesPaged({
   pageSize = 6, // 한 페이지당 개수
@@ -156,4 +153,5 @@ export const studiesRepository = {
   findStudiesPaged,
   findStudyById,
   createEmojis,
+  createStudy,
 };

@@ -4,6 +4,9 @@ import { NotFoundException } from '../../errors/notFoundException.js';
 import { prisma } from '#db/prisma.js';
 import { BadRequestException } from '../../errors/badRequestException.js';
 import { validateId } from '../../utils/idValidate.js';
+import { validate } from '#middlewares/validation.middleware.js';
+import { HTTP_STATUS } from 'constants';
+import { createStudySchema } from './studies.schemas.js';
 
 export const studiesRouter = express.Router();
 
@@ -48,7 +51,28 @@ studiesRouter.get('/:studyId', async (req, res) => {
   res.json(studyItem);
 });
 
-<<<<<<< Updated upstream
+studiesRouter.post(
+  '/',
+  validate('body', createStudySchema),
+  async (req, res, next) => {
+    try {
+      const { nickname, studyName, intro, background } = req.body;
+
+      const newStudy = await studiesRepository.createStudy({
+        nickname,
+        title: studyName,
+        description: intro,
+        backgroundImage: background,
+        totalPoint: 0,
+      });
+
+      res.status(HTTP_STATUS.CREATED).json(newStudy);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 //METHOD:POST studies/:studyId/emojis
 studiesRouter.post('/:studyId/emojis', async (req, res) => {
   const { studyId } = req.params;
@@ -72,6 +96,3 @@ studiesRouter.post('/:studyId/emojis', async (req, res) => {
 
   res.status(201).json({ emojis: emojiCounts });
 });
-=======
-
->>>>>>> Stashed changes
