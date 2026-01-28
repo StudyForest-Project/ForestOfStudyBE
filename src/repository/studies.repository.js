@@ -109,6 +109,11 @@ async function findStudyById(id) {
     },
   });
 
+  // null 체크 먼저!
+  if (!studyDetail) {
+    return null;
+  }
+
   // habits 원본 제거하고 구조 정리
   const { habits, emojis, ...studyInfo } = studyDetail;
 

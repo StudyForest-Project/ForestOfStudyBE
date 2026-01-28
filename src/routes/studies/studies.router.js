@@ -3,6 +3,7 @@ import express from 'express';
 import { NotFoundException } from '../../errors/notFoundException.js';
 import { prisma } from '#db/prisma.js';
 import { BadRequestException } from '../../errors/badRequestException.js';
+import { validateId } from '../../utils/idValidate.js';
 
 export const studiesRouter = express.Router();
 
@@ -11,6 +12,8 @@ studiesRouter.get('/', async (req, res) => {
   const { pageSize, search, sort, cursor } = req.query;
 
   if (cursor) {
+    // 형식 검증 먼저 (DB 조회 전에 id 체크)
+    validateId(cursor);
     const exists = await prisma.study.findUnique({ where: { id: cursor } });
     if (!exists) {
       throw new BadRequestException('유효하지 않은 cursor입니다');
@@ -34,7 +37,13 @@ studiesRouter.get('/', async (req, res) => {
 studiesRouter.get('/:id', async (req, res) => {
   const { id } = req.params;
   console.log(id);
+  // 아이디 형식 체크
+  validateId(id);
   const studyItem = await studiesRepository.findStudyById(id);
+
+  if (!studyItem) {
+    throw new NotFoundException('스터디 상세페이지를 찾을 수 없습니다.');
+  }
 
   res.json(studyItem);
 });
