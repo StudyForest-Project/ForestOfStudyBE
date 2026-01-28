@@ -9,7 +9,8 @@
     "#repository": "./src/repository/index.js",
     "#config": "./src/config/config.js",
     "#db/*": "./src/db/*",
-    "#middlewares/*": "./src/middlewares/*"
+    "#middlewares/*": "./src/middlewares/*",
+    "#constants": "./src/constants/index.js"
   },
   "engines": {
     "node": ">=24.11.0"

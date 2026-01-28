@@ -3,6 +3,7 @@ import { focusRepository } from '#repository';
 import { validateId } from '../../utils/idValidate.js';
 import { NotFoundException } from '../../errors/notFoundException.js';
 import { BadRequestException } from '../../errors/badRequestException.js';
+import { HTTP_STATUS } from '#constants';
 
 export const focusRouter = express.Router();
 
@@ -20,7 +21,7 @@ focusRouter.get('/:studyId/focus', async (req, res) => {
     throw new NotFoundException('스터디를 찾을 수 없습니다.');
   }
 
-  res.status(200).json(studyInfo);
+  res.status(HTTP_STATUS.OK).json(studyInfo);
 });
 
 /**
@@ -33,12 +34,16 @@ focusRouter.post('/:studyId/focus-sessions', async (req, res) => {
 
   validateId(studyId);
 
-  if (
-    targetTime === undefined ||
-    activeTime === undefined ||
-    pauseUsed === undefined
-  ) {
-    throw new BadRequestException('필수 데이터가 누락되었습니다.');
+  if (typeof targetTime !== 'number' || targetTime <= 0) {
+    throw new BadRequestException('targetTime은 0보다 큰 숫자여야 합니다.');
+  }
+
+  if (typeof activeTime !== 'number' || activeTime <= 0) {
+    throw new BadRequestException('activeTime은 0보다 큰 숫자여야 합니다.');
+  }
+
+  if (typeof pauseUsed !== 'boolean') {
+    throw new BadRequestException('pauseUsed는 true/false 중 하나여야 합니다.');
   }
 
   const result = await focusRepository.saveFocusResult({
@@ -48,7 +53,7 @@ focusRouter.post('/:studyId/focus-sessions', async (req, res) => {
     pauseUsed,
   });
 
-  res.status(201).json({
+  res.status(HTTP_STATUS.CREATED).json({
     message: '집중 기록이 저장되었습니다.',
     data: result,
   });
