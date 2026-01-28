@@ -33,17 +33,41 @@ studiesRouter.get('/', async (req, res) => {
   res.json(studiesList);
 });
 
-//METHOD:GET studies/:id
-studiesRouter.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  console.log(id);
+//METHOD:GET studies/:studyId
+studiesRouter.get('/:studyId', async (req, res) => {
+  const { studyId } = req.params;
+  console.log(studyId);
   // 아이디 형식 체크
-  validateId(id);
-  const studyItem = await studiesRepository.findStudyById(id);
+  validateId(studyId);
+  const studyItem = await studiesRepository.findStudyById(studyId);
 
   if (!studyItem) {
     throw new NotFoundException('스터디 상세페이지를 찾을 수 없습니다.');
   }
 
   res.json(studyItem);
+});
+
+//METHOD:POST studies/:studyId/emojis
+studiesRouter.post('/:studyId/emojis', async (req, res) => {
+  const { studyId } = req.params;
+  const { emojis } = req.body;
+
+  // 아이디 형식 체크
+  validateId(studyId);
+
+  // studyId 존재 여부 확인
+  const study = await studiesRepository.findStudyById(studyId);
+  if (!study) {
+    throw new NotFoundException('스터디를 찾을 수 없습니다.');
+  }
+
+  // 입력 검증
+  if (!emojis || !Array.isArray(emojis) || emojis.length === 0) {
+    throw new BadRequestException('이모지를 입력해주세요.');
+  }
+
+  const emojiCounts = await studiesRepository.createEmojis(emojis, studyId);
+
+  res.status(201).json({ emojis: emojiCounts });
 });

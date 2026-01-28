@@ -19,8 +19,10 @@ export function transformEmojiCounts(emojis) {
   // 객체를 [ ['🔥', 1] ] -> 이형태로 변환
   //map을 돌면서 [{  "emoji": "🔥","count": 1}] -> 이형태로 변환
 
-  return Object.entries(emojiCounts).map(([emoji, count]) => ({
-    emoji,
-    count,
-  }));
+  return Object.entries(emojiCounts)
+    .map(([emoji, count]) => ({
+      emoji,
+      count,
+    }))
+    .toSorted((a, b) => b.count - a.count);
 }
