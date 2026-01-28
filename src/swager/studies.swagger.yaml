@@ -192,6 +192,95 @@ paths:
                   code: NOT_FOUND
                   message: 스터디 리스트가 존재하지 않습니다.
 
+  /studies/{studyId}/emojis:
+    post:
+      summary: 스터디 응원 이모지 등록
+      tags: [Studies]
+      security: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - emojis
+              properties:
+                emojis:
+                  type: array
+                  items:
+                    type: string
+                  example: ["🔥", "👍", "🌱"]
+                  description: 등록할 이모지 배열
+      responses:
+        201:
+          description: 이모지 등록 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emojis:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        emoji:
+                          type: string
+                          example: 🔥
+                        count:
+                          type: integer
+                          example: 13
+              example:
+                emojis:
+                  - emoji: 🔥
+                    count: 13
+                  - emoji: 👍
+                    count: 7
+                  - emoji: 🌱
+                    count: 3
+        400:
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+                emptyEmojis:
+                  summary: 이모지 미입력
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 이모지를 입력해주세요.
+        404:
+          description: 스터디를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 스터디를 찾을 수 없습니다.
+
   /studies/{id}:
     get:
       summary: 스터디 상세 조회

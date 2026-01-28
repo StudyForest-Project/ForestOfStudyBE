@@ -1,6 +1,8 @@
 import { prisma } from '#db/prisma.js';
+import { emoji } from 'zod';
 import { transformEmojiCounts } from '../utils/emoji.utils.js';
 import { transformHabitWeek } from '../utils/habit.utils.js';
+import { ulid } from 'ulid';
 
 // 모든 스터디 조회 및 페이지네이션 하나로
 async function findStudiesPaged({
@@ -124,7 +126,24 @@ async function findStudyById(id) {
   };
 }
 
+//스터디 이모지 등록
+async function createEmojis(emojis, studyId) {
+  await prisma.StudyEmoji.createMany({
+    data: emojis.map((emoji) => ({
+      id: ulid(),
+      studyId: studyId,
+      emoji: emoji,
+    })),
+  });
+  const allEmojis = await prisma.StudyEmoji.findMany({
+    where: { studyId },
+    select: { emoji: true },
+  });
+  return transformEmojiCounts(allEmojis);
+}
+
 export const studiesRepository = {
   findStudiesPaged,
   findStudyById,
+  createEmojis,
 };
