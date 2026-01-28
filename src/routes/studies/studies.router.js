@@ -48,6 +48,7 @@ studiesRouter.get('/:studyId', async (req, res) => {
   res.json(studyItem);
 });
 
+<<<<<<< Updated upstream
 //METHOD:POST studies/:studyId/emojis
 studiesRouter.post('/:studyId/emojis', async (req, res) => {
   const { studyId } = req.params;
@@ -71,3 +72,6 @@ studiesRouter.post('/:studyId/emojis', async (req, res) => {
 
   res.status(201).json({ emojis: emojiCounts });
 });
+=======
+
+>>>>>>> Stashed changes
