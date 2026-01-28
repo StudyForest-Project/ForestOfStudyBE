@@ -16,6 +16,68 @@ components:
               type: string
               example: 스터디 리스트가 존재하지 않습니다
 
+    StudyDetailResponse:
+      type: object
+      properties:
+        study:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 01KFZ1K63J37VSVNBYC61TJ54V
+            title:
+              type: string
+              example: 연우의 개발공장
+            nickname:
+              type: string
+              example: J
+            description:
+              type: string
+              example: 함께 성장하는 스터디입니다
+            backgroundImage:
+              type: string
+              example: https://.../bg1.png
+            totalPoint:
+              type: integer
+              example: 310
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        emojis:
+          type: array
+          items:
+            type: object
+            properties:
+              emoji:
+                type: string
+                example: 🔥
+              count:
+                type: integer
+                example: 12
+        habitWeek:
+          type: object
+          properties:
+            rows:
+              type: array
+              items:
+                type: object
+                properties:
+                  habitId:
+                    type: string
+                    example: 01HAAB...
+                  title:
+                    type: string
+                    example: 운동하기
+                  checks:
+                    type: array
+                    items:
+                      type: boolean
+                    example: [true, false, true, true, false, false, false]
+                    description: 월~일 각 날짜의 완료 여부
+
     StudyListResponse:
       type: object
       properties:
@@ -107,9 +169,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StudyListResponse'
+        400:
+          description: 유효하지 않은 cursor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 400
+                  code: BAD_REQUEST
+                  message: 유효하지 않은 cursor입니다
         404:
           description: 스터디 리스트가 존재하지 않습니다
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 스터디 리스트가 존재하지 않습니다.
+
+  /studies/{id}:
+    get:
+      summary: 스터디 상세 조회
+      tags: [Studies]
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      responses:
+        200:
+          description: 스터디 상세 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyDetailResponse'
+        400:
+          description: 잘못된 ID 형식입니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 400
+                  code: BAD_REQUEST
+                  message: 잘못된 ID 형식입니다
+        404:
+          description: 스터디 상세페이지를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 스터디 상세페이지를 찾을 수 없습니다.
