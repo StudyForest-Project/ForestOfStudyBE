@@ -111,11 +111,6 @@ async function findStudyById(id) {
     },
   });
 
-  // null 체크 먼저!
-  if (!studyDetail) {
-    return null;
-  }
-
   // habits 원본 제거하고 구조 정리
   const { habits, emojis, ...studyInfo } = studyDetail;
 
@@ -124,6 +119,18 @@ async function findStudyById(id) {
     emojis: transformEmojiCounts(emojis),
     habitWeek: transformHabitWeek(habits),
   };
+}
+async function createStudy(data) {
+  return await prisma.study.create({
+    data: {
+      id: ulid(),
+      title: data.studyName,
+      nickname: data.nickname,
+      description: data.intro,
+      backgroundImage: data.background,
+      totalPoint: 0,
+    },
+  });
 }
 
 //스터디 이모지 등록
@@ -146,4 +153,5 @@ export const studiesRepository = {
   findStudiesPaged,
   findStudyById,
   createEmojis,
+  createStudy,
 };
