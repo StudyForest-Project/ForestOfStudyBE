@@ -1,8 +1,9 @@
 import { HttpException } from './httpException.js';
+import { ERROR_MESSAGE } from '#constants';
 
 // 401 Unauthorized 전용 예외 (인증 실패용)
 export class UnauthorizedException extends HttpException {
-  constructor(message = '인증이 필요합니다', code = 'UNAUTHORIZED') {
+  constructor(message = ERROR_MESSAGE.UNAUTHORIZED, code = 'UNAUTHORIZED') {
     super(message, 401, code);
   }
 }

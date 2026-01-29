@@ -10,7 +10,8 @@
     "#config": "./src/config/config.js",
     "#db/*": "./src/db/*",
     "#middlewares/*": "./src/middlewares/*",
-    "#constants": "./src/constants/index.js"
+    "#constants": "./src/constants/index.js",
+    "#validators": "./src/validators/index.js"
   },
   "engines": {
     "node": ">=24.11.0"
@@ -31,6 +32,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "bcrypt": "^6.0.0",
     "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "dotenv-cli": "^11.0.0",
