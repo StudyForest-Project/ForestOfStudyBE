@@ -1,8 +1,8 @@
 import { prisma } from '#db/prisma.js';
-import { emoji } from 'zod';
 import { transformEmojiCounts } from '../utils/emoji.utils.js';
 import { transformHabitWeek } from '../utils/habit.utils.js';
 import { ulid } from 'ulid';
+import bcrypt from 'bcrypt';
 
 // 모든 스터디 조회 및 페이지네이션 하나로
 async function findStudiesPaged({
@@ -120,15 +120,19 @@ async function findStudyById(id) {
     habitWeek: transformHabitWeek(habits),
   };
 }
+
+// 스터디 생성
 async function createStudy(data) {
+  const hashedPassword = await bcrypt.hash(data.password, 10);
+
   return await prisma.study.create({
     data: {
       id: ulid(),
-      title: data.studyName,
       nickname: data.nickname,
-      description: data.intro,
-      backgroundImage: data.background,
-      totalPoint: 0,
+      title: data.title,
+      description: data.description,
+      backgroundImage: data.backgroundImage,
+      password: hashedPassword,
     },
   });
 }

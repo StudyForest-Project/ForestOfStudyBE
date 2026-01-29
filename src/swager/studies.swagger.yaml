@@ -132,8 +132,118 @@ components:
               nullable: true
               example: 01HAAB...
 
+    # 스터디 생성 응답
+    StudyCreateResponse:
+      type: object
+      properties:
+        study:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 01KFZ1K63J37VSVNBYC61TJ54V
+            title:
+              type: string
+              example: 연우의 개발공장
+            nickname:
+              type: string
+              example: J
+            description:
+              type: string
+              example: 함께 성장하는 스터디입니다
+            backgroundImage:
+              type: string
+              example: https://.../bg1.png
+            password:
+              type: string
+              example: $2b$10$...
+            totalPoint:
+              type: integer
+              example: 0
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    # Validation 에러 응답
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            fields:
+              type: object
+              additionalProperties:
+                type: string
+              example:
+                title: 스터디 이름을 입력해주세요.
+                password: 비밀번호는 필수입니다.
+
 paths:
   /studies:
+    post:
+      summary: 스터디 생성
+      tags: [Studies]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nickname
+                - title
+                - description
+                - backgroundImage
+                - password
+              properties:
+                nickname:
+                  type: string
+                  example: J
+                  description: 닉네임
+                title:
+                  type: string
+                  example: 연우의 개발공장
+                  description: 스터디 이름
+                description:
+                  type: string
+                  example: 함께 성장하는 스터디입니다
+                  description: 스터디 소개
+                backgroundImage:
+                  type: string
+                  example: https://.../bg1.png
+                  description: 배경 이미지 URL
+                password:
+                  type: string
+                  example: mypassword123
+                  description: 비밀번호
+      responses:
+        201:
+          description: 스터디 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyCreateResponse'
+        400:
+          description: 유효성 검사 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              example:
+                error:
+                  code: VALIDATION_ERROR
+                  fields:
+                    title: 스터디 이름을 입력해주세요.
+                    password: 비밀번호는 필수입니다.
+
     get:
       summary: 스터디 목록 조회
       tags: [Studies]
@@ -324,3 +434,4 @@ paths:
                   status: 404
                   code: NOT_FOUND
                   message: 스터디 상세페이지를 찾을 수 없습니다.
+
