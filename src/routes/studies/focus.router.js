@@ -34,7 +34,7 @@ focusRouter.post(
   validate(createFocusSessionValidator),
   async (req, res) => {
     const { studyId } = req.params;
-    const { targetTime, activeTime, pauseUsed } = req.body;
+    const { targetTime, activeTime, isPauseUsed: pauseUsed } = req.body;
 
     validateId(studyId);
 
