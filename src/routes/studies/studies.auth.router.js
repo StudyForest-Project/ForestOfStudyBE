@@ -27,8 +27,8 @@ studiesAuthRouter.post('/:studyId/verify-password', async (req, res) => {
     throw new UnauthorizedException(ERROR_MESSAGE.PASSWORD_WRONG);
   }
 
-  // 쿠키 발급
-  setStudyAccessCookie(res, studyId);
+  // 쿠키 발급 (기존 study_* 쿠키 삭제 후 새 쿠키 발급)
+  setStudyAccessCookie(req, res, studyId);
 
   res.status(HTTP_STATUS.OK).json({ ok: true });
 });

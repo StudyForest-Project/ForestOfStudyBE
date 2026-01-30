@@ -6,7 +6,8 @@ import { BadRequestException } from '../../errors/badRequestException.js';
 import { validateId } from '../../utils/idValidate.js';
 import { HTTP_STATUS, ERROR_MESSAGE } from '#constants';
 import { validate } from '#middlewares/validate.middleware.js';
-import { createStudyValidator } from '#validators';
+import { createStudyValidator, updateStudyValidator } from '#validators';
+import { requireStudyAccess } from '#middlewares/auth.middleware.js';
 
 export const studiesCrudRouter = express.Router();
 
@@ -49,8 +50,35 @@ studiesCrudRouter.get('/:studyId', async (req, res) => {
 });
 
 //METHOD:POST /studies
-studiesCrudRouter.post('/', validate(createStudyValidator), async (req, res) => {
-  const newStudy = await studiesCrudRepository.createStudy(req.body);
+studiesCrudRouter.post(
+  '/',
+  validate(createStudyValidator),
+  async (req, res) => {
+    const newStudy = await studiesCrudRepository.createStudy(req.body);
 
-  res.status(HTTP_STATUS.CREATED).json({ study: newStudy });
+    res.status(HTTP_STATUS.CREATED).json({ study: newStudy });
+  },
+);
+
+//METHOD:PATCH /studies/:studyId
+studiesCrudRouter.patch(
+  '/:studyId',
+  requireStudyAccess,
+  validate(updateStudyValidator),
+  async (req, res) => {
+    const { studyId } = req.params;
+
+    const patchStudy = await studiesCrudRepository.updateStudy(
+      studyId,
+      req.body,
+    );
+    res.status(HTTP_STATUS.OK).json({ study: patchStudy });
+  },
+);
+
+//METHOD:DELETE /studies/:studyId
+studiesCrudRouter.delete('/:studyId', requireStudyAccess, async (req, res) => {
+  const { studyId } = req.params;
+  const deletedStudy = await studiesCrudRepository.deleteStudy(studyId);
+  res.status(HTTP_STATUS.OK).json({ success: true, study: deletedStudy });
 });

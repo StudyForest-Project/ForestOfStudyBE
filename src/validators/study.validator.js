@@ -19,3 +19,17 @@ export const createStudyValidator = z.object({
     .string({ message: ERROR_MESSAGE.PASSWORD_REQUIRED })
     .min(1, ERROR_MESSAGE.PASSWORD_MIN),
 });
+
+export const updateStudyValidator = z
+  .object({
+    nickname: z.string().min(1, ERROR_MESSAGE.NICKNAME_MIN).optional(),
+    title: z.string().min(1, ERROR_MESSAGE.TITLE_MIN).optional(),
+    description: z.string().min(1, ERROR_MESSAGE.DESCRIPTION_MIN).optional(),
+    backgroundImage: z
+      .string()
+      .min(1, ERROR_MESSAGE.BACKGROUND_IMAGE_MIN)
+      .optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: ERROR_MESSAGE.UPDATE_FIELD_REQUIRED,
+  });

@@ -43,6 +43,9 @@ export const ERROR_MESSAGE = {
   PASSWORD_REQUIRED: '비밀번호는 필수입니다.',
   PASSWORD_MIN: '비밀번호를 입력해주세요.',
   PASSWORD_WRONG: '비밀번호가 틀렸습니다.',
+
+  // Study 수정 관련
+  UPDATE_FIELD_REQUIRED: '수정할 항목을 1개 이상 입력해주세요.',
 };
 
 // 성공 메시지 상수

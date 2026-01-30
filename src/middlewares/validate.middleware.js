@@ -1,17 +1,27 @@
 import { flattenError } from 'zod/v4/core';
 import { HTTP_STATUS } from '#constants';
+import { errorHandler } from './errorHandler.middleware.js';
 
 export const validate = (schema) => (req, res, next) => {
   const result = schema.safeParse(req.body);
 
   if (!result.success) {
-    const { fieldErrors } = flattenError(result.error);
+    const { fieldErrors, formErrors } = flattenError(result.error);
     console.log(fieldErrors, '에러구조');
 
     // 배열에서 첫 번째 메시지만 추출
     const fields = Object.fromEntries(
       Object.entries(fieldErrors).map(([key, messages]) => [key, messages[0]]),
     );
+    console.log(fields, '===============');
+    // refine 에러는 formErrors에 들어감 (전체 객체 검증)
+    if (formErrors.length > 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        status: HTTP_STATUS.BAD_REQUEST,
+        code: 'VALIDATION_ERROR',
+        messages: formErrors[0],
+      });
+    }
 
     // -> 객체 데이터 배열로 변환
     // console.log(Object.entries(fieldErrors));
