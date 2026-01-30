@@ -120,6 +120,18 @@ async function findStudyById(id) {
   };
 }
 
+// password 제외 select
+const studySelectWithoutPassword = {
+  id: true,
+  title: true,
+  nickname: true,
+  description: true,
+  backgroundImage: true,
+  totalPoint: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
 // 스터디 생성
 async function createStudy(data) {
   const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -133,6 +145,25 @@ async function createStudy(data) {
       backgroundImage: data.backgroundImage,
       password: hashedPassword,
     },
+    select: studySelectWithoutPassword,
+  });
+}
+
+// 스터디 수정
+async function updateStudy(id, data) {
+  return await prisma.study.update({
+    where: { id },
+    data,
+    select: studySelectWithoutPassword,
+  });
+}
+
+// 스터디 삭제
+
+async function deleteStudy(id) {
+  return await prisma.study.delete({
+    where: { id },
+    select: studySelectWithoutPassword,
   });
 }
 
@@ -140,4 +171,6 @@ export const studiesCrudRepository = {
   findStudiesPaged,
   findStudyById,
   createStudy,
+  updateStudy,
+  deleteStudy,
 };
