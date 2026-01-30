@@ -1,0 +1,114 @@
+components:
+  schemas:
+    # 비밀번호 검증 성공 응답
+    VerifyPasswordSuccessResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+
+    # 비밀번호 검증 에러 응답
+    PasswordErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 401
+            code:
+              type: string
+              example: UNAUTHORIZED
+            message:
+              type: string
+              example: 비밀번호가 일치하지 않습니다.
+
+paths:
+  /studies/{studyId}/verify-password:
+    post:
+      summary: 스터디 비밀번호 검증
+      description: |
+        스터디 접근을 위한 비밀번호를 검증합니다.
+        검증 성공 시 HttpOnly 쿠키가 발급되어 이후 수정/삭제 권한이 부여됩니다.
+      tags: [Studies - Auth]
+      security: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  example: mypassword123
+                  description: 스터디 비밀번호
+      responses:
+        200:
+          description: 비밀번호 검증 성공 (쿠키 발급됨)
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: study_01KFZ1K63J37VSVNBYC61TJ54V=s%3Aauthorized.xxx; Path=/; HttpOnly; SameSite=Lax
+              description: 스터디 접근 권한 쿠키 (HttpOnly, Signed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyPasswordSuccessResponse'
+        400:
+          description: 비밀번호 미입력 또는 잘못된 ID 형식
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordErrorResponse'
+              examples:
+                passwordMissing:
+                  summary: 비밀번호 미입력
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 비밀번호를 입력해주세요.
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+        401:
+          description: 비밀번호 불일치
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 비밀번호가 일치하지 않습니다.
+        404:
+          description: 스터디를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 스터디를 찾을 수 없습니다.

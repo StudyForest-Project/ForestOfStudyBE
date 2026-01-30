@@ -5,6 +5,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production']).default('development'),
   PORT: z.coerce.number().min(1000).max(65535).default(5001),
   DATABASE_URL: z.url(),
+  COOKIE_SECRET: z.string().min(20), //쿠키 서명확인
 });
 
 const parseEnvironment = () => {
@@ -13,6 +14,7 @@ const parseEnvironment = () => {
       NODE_ENV: process.env.NODE_ENV,
       PORT: process.env.PORT,
       DATABASE_URL: process.env.DATABASE_URL,
+      COOKIE_SECRET: process.env.COOKIE_SECRET,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

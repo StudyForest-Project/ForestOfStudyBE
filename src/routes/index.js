@@ -1,8 +1,6 @@
 import express from 'express';
-import { studiesRouter } from './studies/studies.router.js';
-import { focusRouter } from './studies/focus.router.js';
+import { studiesRouter } from './studies/index.js';
 
 export const routers = express.Router();
 
-routers.use('/studies', focusRouter);
 routers.use('/studies', studiesRouter);

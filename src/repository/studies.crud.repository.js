@@ -4,12 +4,12 @@ import { transformHabitWeek } from '../utils/habit.utils.js';
 import { ulid } from 'ulid';
 import bcrypt from 'bcrypt';
 
-// 모든 스터디 조회 및 페이지네이션 하나로
+// 모든 스터디 조회 및 페이지네이션
 async function findStudiesPaged({
-  pageSize = 6, // 한 페이지당 개수
+  pageSize = 6,
   search = '',
   sort = 'recent',
-  cursor = null, // 빈 문자열보다 null이 명확
+  cursor = null,
 }) {
   const where = search
     ? {
@@ -37,8 +37,6 @@ async function findStudiesPaged({
 
   const orderBy = getOrderBy(sort);
 
-  // 다음페이지 확인용으로 1개더 가지고 온다음
-  // skip으로 1개 버림
   const studies = await prisma.study.findMany({
     take: pageSize + 1,
     ...(cursor && {
@@ -111,7 +109,8 @@ async function findStudyById(id) {
     },
   });
 
-  // habits 원본 제거하고 구조 정리
+  if (!studyDetail) return null;
+
   const { habits, emojis, ...studyInfo } = studyDetail;
 
   return {
@@ -137,25 +136,8 @@ async function createStudy(data) {
   });
 }
 
-//스터디 이모지 등록
-async function createEmojis(emojis, studyId) {
-  await prisma.StudyEmoji.createMany({
-    data: emojis.map((emoji) => ({
-      id: ulid(),
-      studyId: studyId,
-      emoji: emoji,
-    })),
-  });
-  const allEmojis = await prisma.StudyEmoji.findMany({
-    where: { studyId },
-    select: { emoji: true },
-  });
-  return transformEmojiCounts(allEmojis);
-}
-
-export const studiesRepository = {
+export const studiesCrudRepository = {
   findStudiesPaged,
   findStudyById,
-  createEmojis,
   createStudy,
 };
