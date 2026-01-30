@@ -42,6 +42,7 @@ export const ERROR_MESSAGE = {
   BACKGROUND_IMAGE_MIN: '배경 이미지를 선택해주세요.',
   PASSWORD_REQUIRED: '비밀번호는 필수입니다.',
   PASSWORD_MIN: '비밀번호를 입력해주세요.',
+  PASSWORD_WRONG: '비밀번호가 틀렸습니다.',
 };
 
 // 성공 메시지 상수

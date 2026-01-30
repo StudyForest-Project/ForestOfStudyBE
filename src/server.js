@@ -5,13 +5,20 @@ import { config } from '#config';
 import { cors } from '#middlewares/cors.middleware.js';
 import { routers } from './routes/index.js';
 import { swaggerSpec } from './swager/swager.js';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from '#middlewares/errorHandler.middleware.js';
 
 const app = express();
 const PORT = config.PORT;
+//배포환경 프록시 설정
+if (config.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // JSON 파싱 미들웨어
 app.use(express.json());
+
+app.use(cookieParser(config.COOKIE_SECRET));
 
 // cors 체크
 app.use(cors);
