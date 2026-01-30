@@ -9,5 +9,5 @@ export const createFocusSessionValidator = z.object({
   activeTime: z
     .number({ message: ERROR_MESSAGE.ACTIVE_TIME_REQUIRED })
     .positive(ERROR_MESSAGE.ACTIVE_TIME_INVALID),
-  pauseUsed: z.boolean({ message: ERROR_MESSAGE.PAUSE_USED_INVALID }),
+  isPauseUsed: z.boolean({ message: ERROR_MESSAGE.PAUSE_USED_INVALID }),
 });

@@ -1,14 +1,14 @@
 import { prisma } from '#db/prisma.js';
 import { ulid } from 'ulid';
 import { calculatePoints } from '../utils/point.utils.js';
-
-const SECONDS_PER_MINUTE = 60; // 초 -> 분 변환
+import { TIMER } from '#constants';
+import { formatRecentTimeList } from '../utils/focus.utils.js';
 
 /**
  * 집중 페이지 진입 시 정보 조회
  */
 async function findFocusInfoByStudyId(studyId) {
-  return await prisma.study.findUnique({
+  const study = await prisma.study.findUnique({
     where: { id: studyId },
     select: {
       id: true,
@@ -16,19 +16,31 @@ async function findFocusInfoByStudyId(studyId) {
       totalPoint: true,
     },
   });
+
+  if (!study) {
+    return null;
+  }
+
+  const recentTimeRecord = await prisma.focusSession.groupBy({
+    by: ['targetTime'],
+    where: { studyId },
+    _max: { createdAt: true },
+    orderBy: { _max: { createdAt: 'desc' } },
+    take: TIMER.MAX_RECENT_TIME_LIST,
+  });
+
+  return {
+    study,
+    timeList: formatRecentTimeList(recentTimeRecord),
+  };
 }
 
 /**
  * 집중 완료 데이터 저장
  */
-async function saveFocusResult({
-  studyId,
-  targetTime,
-  activeTime,
-  pauseUsed,
-}) {
+async function saveFocusResult({ studyId, targetTime, activeTime, pauseUsed }) {
   // 분 단위 변환(초 단위 버림)
-  const activeMinutes = Math.floor(activeTime / SECONDS_PER_MINUTE);
+  const activeMinutes = Math.floor(activeTime / TIMER.SECONDS_PER_MINUTE);
 
   // 포인트 계산
   const earnedPoints = calculatePoints({
