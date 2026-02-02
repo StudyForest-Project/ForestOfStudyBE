@@ -1,5 +1,5 @@
 import express from 'express';
-import { studiesCrudRepository } from '#repository';
+import { studiesRepository } from '#repository';
 import { NotFoundException } from '../../errors/notFoundException.js';
 import { prisma } from '#db/prisma.js';
 import { BadRequestException } from '../../errors/badRequestException.js';
@@ -9,10 +9,11 @@ import { validate } from '#middlewares/validate.middleware.js';
 import { createStudyValidator, updateStudyValidator } from '#validators';
 import { requireStudyAccess } from '#middlewares/auth.middleware.js';
 
-export const studiesCrudRouter = express.Router();
+export const studiesRouter = express.Router();
 
+//스터디 리스트
 //METHOD:GET studies?
-studiesCrudRouter.get('/', async (req, res) => {
+studiesRouter.get('/', async (req, res) => {
   const { pageSize, search, sort, cursor } = req.query;
 
   if (cursor) {
@@ -22,7 +23,7 @@ studiesCrudRouter.get('/', async (req, res) => {
       throw new BadRequestException(ERROR_MESSAGE.INVALID_CURSOR);
     }
   }
-  const studiesList = await studiesCrudRepository.findStudiesPaged({
+  const studiesList = await studiesRepository.findPaged({
     pageSize: pageSize ? parseInt(pageSize, 10) : undefined,
     search,
     sort,
@@ -36,11 +37,12 @@ studiesCrudRouter.get('/', async (req, res) => {
   res.json(studiesList);
 });
 
+// 스터디 상세조회
 //METHOD:GET studies/:studyId
-studiesCrudRouter.get('/:studyId', async (req, res) => {
+studiesRouter.get('/:studyId', async (req, res) => {
   const { studyId } = req.params;
   validateId(studyId);
-  const studyItem = await studiesCrudRepository.findStudyById(studyId);
+  const studyItem = await studiesRepository.findById(studyId);
 
   if (!studyItem) {
     throw new NotFoundException(ERROR_MESSAGE.STUDY_DETAIL_NOT_FOUND);
@@ -49,36 +51,32 @@ studiesCrudRouter.get('/:studyId', async (req, res) => {
   res.json(studyItem);
 });
 
+// 스터디 동록
 //METHOD:POST /studies
-studiesCrudRouter.post(
-  '/',
-  validate(createStudyValidator),
-  async (req, res) => {
-    const newStudy = await studiesCrudRepository.createStudy(req.body);
+studiesRouter.post('/', validate(createStudyValidator), async (req, res) => {
+  const newStudy = await studiesRepository.create(req.body);
 
-    res.status(HTTP_STATUS.CREATED).json({ study: newStudy });
-  },
-);
+  res.status(HTTP_STATUS.CREATED).json({ study: newStudy });
+});
 
+// 스터디 수정
 //METHOD:PATCH /studies/:studyId
-studiesCrudRouter.patch(
+studiesRouter.patch(
   '/:studyId',
   requireStudyAccess,
   validate(updateStudyValidator),
   async (req, res) => {
     const { studyId } = req.params;
 
-    const patchStudy = await studiesCrudRepository.updateStudy(
-      studyId,
-      req.body,
-    );
+    const patchStudy = await studiesRepository.update(studyId, req.body);
     res.status(HTTP_STATUS.OK).json({ study: patchStudy });
   },
 );
 
+// 스터디 삭제
 //METHOD:DELETE /studies/:studyId
-studiesCrudRouter.delete('/:studyId', requireStudyAccess, async (req, res) => {
+studiesRouter.delete('/:studyId', requireStudyAccess, async (req, res) => {
   const { studyId } = req.params;
-  const deletedStudy = await studiesCrudRepository.deleteStudy(studyId);
+  const deletedStudy = await studiesRepository.remove(studyId);
   res.status(HTTP_STATUS.OK).json({ success: true, study: deletedStudy });
 });

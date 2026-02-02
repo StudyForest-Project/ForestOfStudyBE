@@ -10,10 +10,6 @@ import { errorHandler } from '#middlewares/errorHandler.middleware.js';
 
 const app = express();
 const PORT = config.PORT;
-//배포환경 프록시 설정
-if (config.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
 
 // JSON 파싱 미들웨어
 app.use(express.json());

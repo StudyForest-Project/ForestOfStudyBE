@@ -24,6 +24,13 @@ export const ERROR_MESSAGE = {
   // Emoji 관련
   EMOJI_REQUIRED: '이모지를 입력해주세요.',
 
+  // Habit 관련
+  HABIT_DETAIL_NOT_FOUND: '할일 목록을 찾을 수 없습니다.',
+  HABIT_TITLE_REQUIRED: '할일 이름은 필수입니다.',
+  HABIT_TITLE_MIN: '할일 이름을 입력해주세요.',
+  HABIT_CREATE_FIELD_REQUIRED: '타이틀을 입력해주세요.',
+  HABIT_CHECKED_REQUIRED: 'checked를 블리언타입으로 입력해주세요',
+
   // Focus 관련
   TARGET_TIME_REQUIRED: 'targetTime은 숫자여야 합니다.',
   TARGET_TIME_INVALID: 'targetTime은 0보다 큰 숫자여야 합니다.',

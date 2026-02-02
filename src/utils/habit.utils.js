@@ -7,6 +7,7 @@ dayjs.extend(utc);
  * habits 배열을 habitWeek 형태로 변환
  */
 export function transformHabitWeek(habits) {
+  console.log(habits, '======================');
   // 1. 이번 주 월~일 날짜 배열 만들기 (UTC 기준)
   const today = dayjs.utc();
   const dayOfWeek = today.day(); // 0(일) ~ 6(토)

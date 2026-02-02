@@ -1,6 +1,5 @@
 import { flattenError } from 'zod/v4/core';
 import { HTTP_STATUS } from '#constants';
-import { errorHandler } from './errorHandler.middleware.js';
 
 export const validate = (schema) => (req, res, next) => {
   const result = schema.safeParse(req.body);
@@ -17,9 +16,11 @@ export const validate = (schema) => (req, res, next) => {
     // refine 에러는 formErrors에 들어감 (전체 객체 검증)
     if (formErrors.length > 0) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        status: HTTP_STATUS.BAD_REQUEST,
-        code: 'VALIDATION_ERROR',
-        messages: formErrors[0],
+        error: {
+          status: HTTP_STATUS.BAD_REQUEST,
+          code: 'VALIDATION_ERROR',
+          message: formErrors[0],
+        },
       });
     }
 
@@ -38,10 +39,12 @@ export const validate = (schema) => (req, res, next) => {
     //     ]),
     //   ),
     // );
+    console.log('>>>>>>>>>>>>', Object.values(fields), '=========');
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       error: {
+        status: HTTP_STATUS.BAD_REQUEST,
         code: 'VALIDATION_ERROR',
-        fields,
+        message: Object.values(fields)[0],
       },
     });
   }

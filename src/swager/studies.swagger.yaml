@@ -435,3 +435,215 @@ paths:
                   code: NOT_FOUND
                   message: 스터디 상세페이지를 찾을 수 없습니다.
 
+    patch:
+      summary: 스터디 수정
+      description: 스터디 정보를 수정합니다. (비밀번호 인증 필요 🔒)
+      tags: [Studies]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      requestBody:
+        required: true
+        description: 수정할 필드만 전송 (최소 1개 이상 필수)
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                nickname:
+                  type: string
+                  description: 닉네임 (선택)
+                title:
+                  type: string
+                  description: 스터디 이름 (선택)
+                description:
+                  type: string
+                  description: 스터디 소개 (선택)
+                backgroundImage:
+                  type: string
+                  description: 배경 이미지 URL (선택)
+            examples:
+              titleOnly:
+                summary: 제목만 수정
+                value:
+                  title: 새로운 스터디 이름
+              multipleFields:
+                summary: 여러 필드 수정
+                value:
+                  nickname: 새닉네임
+                  description: 새로운 소개글
+      responses:
+        200:
+          description: 스터디 수정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  study:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 01KFZ1K63J37VSVNBYC61TJ54V
+                      title:
+                        type: string
+                        example: 연우의 개발공장
+                      nickname:
+                        type: string
+                        example: J
+                      description:
+                        type: string
+                        example: 함께 성장하는 스터디입니다
+                      backgroundImage:
+                        type: string
+                        example: https://.../bg1.png
+                      totalPoint:
+                        type: integer
+                        example: 310
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        400:
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+                noFields:
+                  summary: 수정할 필드 없음
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      fields:
+                        _: 수정할 필드를 하나 이상 입력해주세요.
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다
+        404:
+          description: 스터디를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 스터디를 찾을 수 없습니다.
+
+    delete:
+      summary: 스터디 삭제
+      description: 스터디를 삭제합니다. (비밀번호 인증 필요 🔒)
+      tags: [Studies]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      responses:
+        200:
+          description: 스터디 삭제 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  study:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 01KFZ1K63J37VSVNBYC61TJ54V
+                      title:
+                        type: string
+                        example: 연우의 개발공장
+                      nickname:
+                        type: string
+                        example: J
+                      description:
+                        type: string
+                        example: 함께 성장하는 스터디입니다
+                      backgroundImage:
+                        type: string
+                        example: https://.../bg1.png
+                      totalPoint:
+                        type: integer
+                        example: 310
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        400:
+          description: 잘못된 ID 형식
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 400
+                  code: BAD_REQUEST
+                  message: 잘못된 ID 형식입니다
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다
+        404:
+          description: 스터디를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 스터디를 찾을 수 없습니다.
+

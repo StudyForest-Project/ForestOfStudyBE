@@ -1,0 +1,510 @@
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: study_{studyId}
+      description: 스터디 비밀번호 검증 후 발급되는 쿠키
+
+  schemas:
+    # 오늘의 습관 목록 응답
+    TodayHabitsResponse:
+      type: object
+      properties:
+        today:
+          type: string
+          example: '2026-02-02'
+        now:
+          type: string
+          example: '2026-02-02T14:30:00+09:00'
+        habits:
+          type: array
+          items:
+            type: object
+            properties:
+              habitId:
+                type: string
+                example: 01HAAB...
+              title:
+                type: string
+                example: 운동하기
+              checked:
+                type: boolean
+                example: true
+
+    # 습관 생성/수정/삭제 응답
+    HabitResponse:
+      type: object
+      properties:
+        habit:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 01HAAB...
+            studyId:
+              type: string
+              example: 01KFZ1K63J37VSVNBYC61TJ54V
+            title:
+              type: string
+              example: 운동하기
+            startDate:
+              type: string
+              format: date-time
+              example: '2026-02-02T00:00:00.000Z'
+            endDate:
+              type: string
+              format: date-time
+              nullable: true
+              example: null
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    # 습관 삭제 응답
+    HabitDeleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        habit:
+          $ref: '#/components/schemas/HabitResponse/properties/habit'
+
+    # 습관 토글 응답
+    HabitToggleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        habit:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 01HAAB...
+            habitId:
+              type: string
+              example: 01HAAB...
+            logDate:
+              type: string
+              format: date-time
+              example: '2026-02-02T00:00:00.000Z'
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    # 에러 응답
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 400
+            code:
+              type: string
+              example: NOT_FOUND
+            message:
+              type: string
+              example: 할일 목록을 찾을 수 없습니다.
+
+    # Validation 에러 응답
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 400
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: 할일 이름을 입력해주세요.
+
+paths:
+  /studies/{studyId}/today-habits:
+    get:
+      summary: 오늘의 습관 목록 조회
+      description: 스터디의 오늘 습관 목록과 체크 상태를 조회합니다. (비밀번호 인증 필요 🔒)
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      responses:
+        200:
+          description: 습관 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodayHabitsResponse'
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다
+        404:
+          description: 스터디를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 할일 목록을 찾을 수 없습니다.
+
+  /studies/{studyId}/habits:
+    post:
+      summary: 습관 생성
+      description: 새로운 습관을 생성합니다. (비밀번호 인증 필요 🔒)
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  example: 운동하기
+                  description: 습관 이름
+      responses:
+        201:
+          description: 습관 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        400:
+          description: 유효성 검사 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              examples:
+                titleRequired:
+                  summary: 제목 미입력
+                  value:
+                    error:
+                      status: 400
+                      code: VALIDATION_ERROR
+                      message: 할일 이름은 필수입니다.
+                titleEmpty:
+                  summary: 제목 빈값
+                  value:
+                    error:
+                      status: 400
+                      code: VALIDATION_ERROR
+                      message: 할일 이름을 입력해주세요.
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다
+
+  /studies/{studyId}/habits/{habitId}:
+    patch:
+      summary: 습관 수정
+      description: 기존 습관을 수정합니다. (비밀번호 인증 필요 🔒)
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+        - in: path
+          name: habitId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 습관 ID (ULID 형식, 26자)
+          example: 01HAAB123456789012345678
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 독서하기
+                  description: 습관 이름
+      responses:
+        200:
+          description: 습관 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        400:
+          description: 유효성 검사 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              examples:
+                titleEmpty:
+                  summary: 제목 빈값
+                  value:
+                    error:
+                      status: 400
+                      code: VALIDATION_ERROR
+                      message: 할일 이름을 입력해주세요.
+                noField:
+                  summary: 수정할 항목 없음
+                  value:
+                    error:
+                      status: 400
+                      code: VALIDATION_ERROR
+                      message: 수정할 항목을 1개 이상 입력해주세요.
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다
+        404:
+          description: 습관을 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 데이터를 찾을 수 없습니다.
+
+    delete:
+      summary: 습관 삭제 (Soft Delete)
+      description: 습관을 삭제합니다. 실제 삭제가 아닌 endDate를 설정하는 Soft Delete입니다. (비밀번호 인증 필요 🔒)
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+        - in: path
+          name: habitId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 습관 ID (ULID 형식, 26자)
+          example: 01HAAB123456789012345678
+      responses:
+        200:
+          description: 습관 삭제 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitDeleteResponse'
+        400:
+          description: 잘못된 ID 형식
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 400
+                  code: BAD_REQUEST
+                  message: 잘못된 ID 형식입니다
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다
+        404:
+          description: 습관을 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 404
+                  code: NOT_FOUND
+                  message: 데이터를 찾을 수 없습니다.
+
+  /studies/{studyId}/habits/{habitId}/toggle:
+    post:
+      summary: 습관 체크 토글
+      description: 오늘 날짜의 습관 체크 상태를 토글합니다. checked가 true면 로그 생성, false면 로그 삭제. (비밀번호 인증 필요 🔒)
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: studyId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 스터디 ID (ULID 형식, 26자)
+          example: 01KFZ1K63J37VSVNBYC61TJ54V
+        - in: path
+          name: habitId
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9A-Z]{26}$'
+          description: 습관 ID (ULID 형식, 26자)
+          example: 01HAAB123456789012345678
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - checked
+              properties:
+                checked:
+                  type: boolean
+                  example: true
+                  description: 체크 상태 (true = 완료, false = 미완료)
+      responses:
+        200:
+          description: 토글 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitToggleResponse'
+              examples:
+                checked:
+                  summary: 체크 완료 (로그 생성)
+                  value:
+                    success: true
+                    habit:
+                      id: 01HAAB...
+                      habitId: 01HAAB...
+                      logDate: '2026-02-02T00:00:00.000Z'
+                      createdAt: '2026-02-02T05:30:00.000Z'
+                      updatedAt: '2026-02-02T05:30:00.000Z'
+                unchecked:
+                  summary: 체크 해제 (로그 삭제)
+                  value:
+                    success: true
+                    habit:
+                      count: 1
+        400:
+          description: 유효성 검사 실패
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              examples:
+                checkedRequired:
+                  summary: checked 미입력 또는 잘못된 타입
+                  value:
+                    error:
+                      status: 400
+                      code: VALIDATION_ERROR
+                      message: checked를 블리언타입으로 입력해주세요
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+        401:
+          description: 인증 실패 (비밀번호 미검증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  status: 401
+                  code: UNAUTHORIZED
+                  message: 인증이 필요합니다

@@ -7,7 +7,7 @@ const options = {
       title: 'Study Forest API',
       version: '1.0.0',
     },
-    servers: [{ url: 'http://localhost:8000' }],
+    servers: [{ url: 'http://localhost:8080' }],
 
     components: {
       securitySchemes: {
