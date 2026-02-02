@@ -1,5 +1,5 @@
 import express from 'express';
-import { studiesEmojiRepository, studiesCrudRepository } from '#repository';
+import { studiesEmojiRepository, studiesRepository } from '#repository';
 import { NotFoundException } from '../../errors/notFoundException.js';
 import { BadRequestException } from '../../errors/badRequestException.js';
 import { validateId } from '../../utils/idValidate.js';
@@ -15,7 +15,7 @@ studiesEmojiRouter.post('/:studyId/emojis', async (req, res) => {
   validateId(studyId);
 
   // studyId 존재 여부 확인
-  const study = await studiesCrudRepository.findStudyById(studyId);
+  const study = await studiesRepository.findById(studyId);
   if (!study) {
     throw new NotFoundException(ERROR_MESSAGE.STUDY_NOT_FOUND);
   }

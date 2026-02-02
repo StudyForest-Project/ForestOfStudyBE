@@ -5,7 +5,7 @@ import { ulid } from 'ulid';
 import bcrypt from 'bcrypt';
 
 // 모든 스터디 조회 및 페이지네이션
-async function findStudiesPaged({
+async function findPaged({
   pageSize = 6,
   search = '',
   sort = 'recent',
@@ -79,7 +79,7 @@ async function findStudiesPaged({
 }
 
 // 스터디 상세조회
-async function findStudyById(id) {
+async function findById(id) {
   const studyDetail = await prisma.study.findUnique({
     where: { id },
     select: {
@@ -112,7 +112,6 @@ async function findStudyById(id) {
   if (!studyDetail) return null;
 
   const { habits, emojis, ...studyInfo } = studyDetail;
-
   return {
     study: studyInfo,
     emojis: transformEmojiCounts(emojis),
@@ -133,7 +132,7 @@ const studySelectWithoutPassword = {
 };
 
 // 스터디 생성
-async function createStudy(data) {
+async function create(data) {
   const hashedPassword = await bcrypt.hash(data.password, 10);
 
   return await prisma.study.create({
@@ -150,7 +149,7 @@ async function createStudy(data) {
 }
 
 // 스터디 수정
-async function updateStudy(id, data) {
+async function update(id, data) {
   return await prisma.study.update({
     where: { id },
     data,
@@ -159,18 +158,32 @@ async function updateStudy(id, data) {
 }
 
 // 스터디 삭제
-
-async function deleteStudy(id) {
+async function remove(id) {
   return await prisma.study.delete({
     where: { id },
     select: studySelectWithoutPassword,
   });
 }
 
-export const studiesCrudRepository = {
-  findStudiesPaged,
-  findStudyById,
-  createStudy,
-  updateStudy,
-  deleteStudy,
+// 비밀번호 검증
+async function verifyPassword(studyId, password) {
+  const study = await prisma.study.findUnique({
+    where: { id: studyId },
+    select: { password: true },
+  });
+
+  if (!study) {
+    return false;
+  }
+
+  return await bcrypt.compare(password, study.password);
+}
+
+export const studiesRepository = {
+  findPaged,
+  findById,
+  create,
+  update,
+  remove,
+  verifyPassword,
 };

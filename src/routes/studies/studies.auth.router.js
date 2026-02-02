@@ -1,5 +1,5 @@
 import express from 'express';
-import { studiesAuthRepository } from '#repository';
+import { studiesRepository } from '#repository';
 import { validateId } from '../../utils/idValidate.js';
 import { HTTP_STATUS, ERROR_MESSAGE } from '#constants';
 import { UnauthorizedException } from '../../errors/unauthorizedException.js';
@@ -20,7 +20,7 @@ studiesAuthRouter.post('/:studyId/verify-password', async (req, res) => {
     throw new BadRequestException(ERROR_MESSAGE.PASSWORD_MIN);
   }
 
-  const isValid = await studiesAuthRepository.verifyPassword(studyId, password);
+  const isValid = await studiesRepository.verifyPassword(studyId, password);
 
   // 비밀번호 불일치
   if (!isValid) {
