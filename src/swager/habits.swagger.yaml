@@ -11,6 +11,9 @@ components:
     TodayHabitsResponse:
       type: object
       properties:
+        studyTitle:
+          type: string
+          example: 연우의 개발공장
         today:
           type: string
           example: '2026-02-02'
