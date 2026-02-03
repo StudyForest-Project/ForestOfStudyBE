@@ -14,6 +14,8 @@ async function findTodayHabits(studyId) {
   const study = await prisma.study.findUnique({
     where: { id: studyId },
     select: {
+      id: true,
+      title: true,
       habits: {
         where: { endDate: null },
         select: {
@@ -48,6 +50,7 @@ async function findTodayHabits(studyId) {
   });
 
   return {
+    studyTitle: study.title,
     today,
     now: now.format('YYYY-MM-DDTHH:mm:ssZ'),
     habits,
