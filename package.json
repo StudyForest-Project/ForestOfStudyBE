@@ -11,7 +11,9 @@
     "#db/*": "./src/db/*",
     "#middlewares/*": "./src/middlewares/*",
     "#constants": "./src/constants/index.js",
-    "#validators": "./src/validators/index.js"
+    "#validators": "./src/validators/index.js",
+    "#utils/*": "./src/utils/*",
+    "#errors/*": "./src/errors/*"
   },
   "engines": {
     "node": ">=24.11.0"

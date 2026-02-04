@@ -12,3 +12,17 @@ export const TIMER = {
   MINUTES_PER_HOUR: 60,
   MAX_RECENT_TIME_LIST: 3,
 };
+
+export const DATE = {
+  WEEKDAYS: ['월', '화', '수', '목', '금', '토', '일'],
+  FORMAT: 'YYYY-MM-DD',
+  DAYS_IN_WEEK: 7,
+  START_OF_DAY: 0, // 일요일 판별용
+  MONDAY_INDEX_OFFSET: 6, // 일요일(0)일 때 월요일로 가는 오프셋
+  MONDAY_START_INDEX: 1, // 월요일 인덱스
+};
+
+export const STATS = {
+  PERCENTAGE_MULTIPLIER: 100, // 백분율 계산용
+  ZERO_DEFAULT: 0, // 기본값
+};
