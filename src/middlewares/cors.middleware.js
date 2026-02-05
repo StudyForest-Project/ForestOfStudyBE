@@ -6,7 +6,7 @@ export const cors = (req, res, next) => {
 
   // 운영/개발 환경에 따라 허용할 출처(Origin) 목록을 다르게 설정
   const whiteList = isProduction
-    ? ['https://voluble-capybara-0d6edd.netlify.app/'] // netlify 올린주소로변경
+    ? ['https://voluble-capybara-0d6edd.netlify.app'] // netlify 올린주소로변경
     : ['http://localhost:3000', 'http://localhost:5173'];
 
   // origin이 존재하고(=브라우저에서 온 cross-origin 가능성이 큼),
