@@ -7,7 +7,7 @@ export const clearStudyAccessCookie = (res, studyId) => {
   res.clearCookie(`study_${studyId}`, {
     path: '/',
     secure: config.NODE_ENV === 'production',
-    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
     signed: true,
   });
 };
@@ -28,7 +28,7 @@ export const setStudyAccessCookie = (req, res, studyId) => {
   res.cookie(`study_${studyId}`, 'authorized', {
     httpOnly: true,
     secure: config.NODE_ENV === 'production',
-    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'lax',
     path: '/',
     signed: true,
   });
