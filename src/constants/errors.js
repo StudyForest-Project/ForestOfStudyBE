@@ -20,6 +20,8 @@ export const ERROR_MESSAGE = {
   STUDY_NOT_FOUND: '스터디를 찾을 수 없습니다.',
   STUDY_LIST_NOT_FOUND: '스터디 리스트가 존재하지 않습니다.',
   STUDY_DETAIL_NOT_FOUND: '스터디 상세페이지를 찾을 수 없습니다.',
+  STUDY_IDS_REQUIRED: '스터디 ID 배열을 입력해주세요.',
+  STUDY_IDS_MAX: '스터디 ID는 최대 3개까지 입력 가능합니다.',
 
   // Emoji 관련
   EMOJI_REQUIRED: '이모지를 입력해주세요.',

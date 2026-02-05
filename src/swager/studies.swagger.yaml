@@ -302,6 +302,105 @@ paths:
                   code: NOT_FOUND
                   message: 스터디 리스트가 존재하지 않습니다.
 
+  /studies/recent:
+    post:
+      summary: 최근 본 스터디 조회
+      description: 스터디 ID 배열로 여러 스터디를 한번에 조회합니다. (최대 3개)
+      tags: [Studies]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ids
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  maxItems: 3
+                  example: ["01KFZ1K63J37VSVNBYC61TJ54V", "01KFZ1K63J37VSVNBYC61TJ55W"]
+                  description: 조회할 스터디 ID 배열 (최대 3개)
+      responses:
+        200:
+          description: 스터디 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  studies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 01KFZ1K63J37VSVNBYC61TJ54V
+                        title:
+                          type: string
+                          example: 연우의 개발공장
+                        nickname:
+                          type: string
+                          example: J
+                        description:
+                          type: string
+                          example: 함께 성장하는 스터디입니다
+                        backgroundImage:
+                          type: string
+                          example: https://.../bg1.png
+                        totalPoint:
+                          type: integer
+                          example: 310
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        emojis:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              emoji:
+                                type: string
+                                example: 🔥
+                              count:
+                                type: integer
+                                example: 12
+        400:
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                idsRequired:
+                  summary: ID 배열 미입력
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 스터디 ID 배열을 입력해주세요.
+                idsMax:
+                  summary: ID 개수 초과
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 스터디 ID는 최대 3개까지 입력 가능합니다.
+                invalidId:
+                  summary: 잘못된 ID 형식
+                  value:
+                    error:
+                      status: 400
+                      code: BAD_REQUEST
+                      message: 잘못된 ID 형식입니다
+
   /studies/{studyId}/emojis:
     post:
       summary: 스터디 응원 이모지 등록
