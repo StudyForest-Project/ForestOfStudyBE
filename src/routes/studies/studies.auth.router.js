@@ -4,7 +4,7 @@ import { validateId } from '../../utils/idValidate.js';
 import { HTTP_STATUS, ERROR_MESSAGE } from '#constants';
 import { UnauthorizedException } from '../../errors/unauthorizedException.js';
 import { BadRequestException } from '../../errors/badRequestException.js';
-import { setStudyAccessCookie, hasStudyAccess } from '../../utils/cookie.utils.js';
+import { setStudyAccessCookie, hasStudyAccess, clearStudyAccessCookie } from '../../utils/cookie.utils.js';
 
 export const studiesAuthRouter = express.Router();
 
@@ -43,4 +43,16 @@ studiesAuthRouter.get('/:studyId/check-access', (req, res) => {
   const isAccessible = hasStudyAccess(req, studyId);
 
   res.status(HTTP_STATUS.OK).json({ ok: isAccessible });
+});
+
+// 스터디 쿠키 삭제 (로그아웃)
+//METHOD:DELETE studies/:studyId/logout
+studiesAuthRouter.delete('/:studyId/logout', (req, res) => {
+  const { studyId } = req.params;
+
+  validateId(studyId);
+
+  clearStudyAccessCookie(res, studyId);
+
+  res.status(HTTP_STATUS.OK).json({ ok: true });
 });
