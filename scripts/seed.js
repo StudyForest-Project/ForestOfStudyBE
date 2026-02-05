@@ -4,223 +4,186 @@ import { ulid } from 'ulid';
 import bcrypt from 'bcrypt';
 
 const xs = (n) => Array.from({ length: n }, (_, i) => i + 1);
+const randomPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 const EMOJIS = ['🔥', '👍', '🌱', '💪', '✅', '🎯', '📚', '⭐'];
-const BACKGROUNDS = ['#EAF2E1', '#F5E6D3', '#E3F2FD', '#FFF3E0', '#F3E5F5'];
 
-const STUDY_DATA = [
-  {
-    title: '연우의 개발공장',
-    nickname: 'J',
-    description: 'Slow and steady wins the race',
-    totalPoint: 310,
-  },
-  {
-    title: '알고리즘 루틴',
-    nickname: 'KM',
-    description: '매일 1문제씩 풀기',
-    totalPoint: 85,
-  },
-  {
-    title: '영어 마스터',
-    nickname: 'Tom',
-    description: '토익 900점 목표!',
-    totalPoint: 220,
-  },
-  {
-    title: '독서 클럽',
-    nickname: '민지',
-    description: '한 달에 책 4권 읽기',
-    totalPoint: 150,
-  },
-  {
-    title: '코딩 부트캠프',
-    nickname: 'Alex',
-    description: '프론트엔드 개발자 되기',
-    totalPoint: 480,
-  },
-  {
-    title: '취준생 스터디',
-    nickname: '준영',
-    description: '함께 취업 준비해요',
-    totalPoint: 95,
-  },
-  {
-    title: 'SQLD 자격증',
-    nickname: 'DB마스터',
-    description: 'SQL 개발자 자격증 취득',
-    totalPoint: 180,
-  },
-  {
-    title: '아침 기상 챌린지',
-    nickname: '얼리버드',
-    description: '매일 6시 기상!',
-    totalPoint: 420,
-  },
-  {
-    title: 'React 스터디',
-    nickname: 'JSLover',
-    description: '리액트 마스터하기',
-    totalPoint: 275,
-  },
-  {
-    title: '정보처리기사',
-    nickname: '수험생A',
-    description: '필기+실기 한번에',
-    totalPoint: 130,
-  },
-  {
-    title: '다이어트 클럽',
-    nickname: '헬스보이',
-    description: '여름까지 -10kg',
-    totalPoint: 340,
-  },
-  {
-    title: 'AWS 자격증',
-    nickname: '클라우드',
-    description: 'SAA 자격증 취득',
-    totalPoint: 200,
-  },
-  {
-    title: '일본어 공부방',
-    nickname: 'にほんご',
-    description: 'JLPT N2 목표',
-    totalPoint: 165,
-  },
-  {
-    title: '코테 준비반',
-    nickname: '백준러',
-    description: '골드 달성하기',
-    totalPoint: 390,
-  },
-  {
-    title: 'CS 스터디',
-    nickname: 'OS마스터',
-    description: '면접 대비 CS 공부',
-    totalPoint: 115,
-  },
-  {
-    title: '사이드 프로젝트',
-    nickname: '개발새발',
-    description: '포트폴리오 만들기',
-    totalPoint: 445,
-  },
-  {
-    title: '논문 읽기 모임',
-    nickname: '석사생',
-    description: '주 1회 논문 리뷰',
-    totalPoint: 70,
-  },
-  {
-    title: '디자인 패턴',
-    nickname: 'GoF',
-    description: '클린 코드 작성하기',
-    totalPoint: 250,
-  },
-  {
-    title: '영어 회화반',
-    nickname: 'English',
-    description: '원어민처럼 말하기',
-    totalPoint: 185,
-  },
-  {
-    title: '주식 공부방',
-    nickname: '워렌버핏',
-    description: '경제 공부하기',
-    totalPoint: 320,
-  },
+// 프론트엔드와 동일한 배경 값
+const BACKGROUNDS = [
+  '#E1EDDE',
+  '#FFF1CC',
+  '#E0F1F5',
+  '#FDE0E9',
+  '/src/assets/img/bg_img_1.jpg',
+  '/src/assets/img/bg_img_2.jpg',
+  '/src/assets/img/bg_img_3.jpg',
+  '/src/assets/img/bg_img_4.jpg',
 ];
 
-const HABIT_DATA = [
+// 닉네임 (최대 3자)
+const NICKNAMES = [
+  'J', 'KM', '민지', '준영', '수진', '지훈', '서연', '도윤',
+  '하늘', '별이', '코딩', '열공', '백준', '취준', '대학',
+  '직장', '개발', '디자', '석사', '박사',
+];
+
+// 타이틀 (최대 6자) - 조합 시 "백준러의 면접 준비반" (11자) 이하
+const TITLES = [
+  '개발 공장', '알고리즘', '영어 공부', '독서 클럽', '코딩 캠프',
+  '취준 스터디', 'SQLD', '기상 챌린지', 'React', '정처기',
+  '다이어트', 'AWS', '일본어', '코테 준비', 'CS 스터디',
+  '사이드PJ', '논문 스터디', '디자인', '영어 회화', '주식 공부',
+  'TS 스터디', 'Node.js', 'Spring', 'Python', 'Java',
+  '면접 준비', '포폴 제작', 'Git', 'Docker', 'DevOps',
+];
+
+const DESCRIPTIONS = [
+  'Slow and steady wins the race',
+  '매일 1문제씩 풀기',
+  '목표를 향해 달려가자!',
+  '함께 공부해요',
+  '꾸준함이 답이다',
+  '오늘도 화이팅!',
+  '작은 습관이 큰 변화를 만든다',
+  '같이 성장해요',
+  '포기하지 말자',
+  '열심히 하는 중!',
+];
+
+const HABIT_TITLES = [
   '알고리즘 1문제 풀기',
   '영어 단어 30개 암기',
   '책 30분 읽기',
   '운동 30분 하기',
   'TIL 작성하기',
+  '코드 리뷰하기',
+  '강의 1개 듣기',
+  '뉴스레터 읽기',
+  '블로그 글 쓰기',
+  '명상 10분',
 ];
+
+// 이번 주 월~목 날짜 (동적으로 계산)
+const getThisWeekDates = () => {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0(일) ~ 6(토)
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  monday.setHours(0, 0, 0, 0);
+
+  return [0, 1, 2, 3].map((i) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    return date;
+  });
+};
+
+const THIS_WEEK_DATES = getThisWeekDates();
+
+const generateStudyData = (count) =>
+  xs(count).map(() => ({
+    title: `${randomPick(NICKNAMES)}의 ${randomPick(TITLES)}`,
+    nickname: randomPick(NICKNAMES),
+    description: randomPick(DESCRIPTIONS),
+    totalPoint: randomInt(50, 500),
+  }));
+
+const STUDY_DATA = generateStudyData(60);
 
 const makeStudyInput = async (data, index) => {
   const date = new Date();
-  date.setDate(date.getDate() - (STUDY_DATA.length - index)); // 오래된 순으로 생성
+  date.setDate(date.getDate() - (STUDY_DATA.length - index));
   const hashedPassword = await bcrypt.hash('test1234', 10);
   return {
     id: ulid(),
     title: data.title,
     nickname: data.nickname,
     description: data.description,
-    backgroundImage: BACKGROUNDS[index % BACKGROUNDS.length],
+    backgroundImage: randomPick(BACKGROUNDS),
     password: hashedPassword,
     totalPoint: data.totalPoint,
     createdAt: date,
   };
 };
 
-const makeHabitInputsForStudy = (studyId, count, startIndex, studyIndex) =>
-  xs(count).map((_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-    const createdAt = new Date();
-    createdAt.setDate(createdAt.getDate() - (20 - studyIndex) + i); // 스터디별로 다른 날짜
+// 각 스터디당 6개의 습관 생성
+const makeHabitInputsForStudy = (studyId) =>
+  xs(6).map((_, i) => {
+    const startDate = new Date(THIS_WEEK_DATES[0]); // 이번 주 월요일
+    startDate.setHours(0, 0, 0, 0);
+    const createdAt = new Date(THIS_WEEK_DATES[0]);
+    createdAt.setHours(9 + i, 0, 0, 0);
     return {
       id: ulid(),
       studyId,
-      title: HABIT_DATA[(startIndex + i) % HABIT_DATA.length],
-      startDate: date,
+      title: HABIT_TITLES[i % HABIT_TITLES.length],
+      startDate,
       endDate: null,
       createdAt,
     };
   });
 
-const makeHabitLogInputsForHabit = (habitId, count) =>
-  xs(count).map((_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    date.setHours(0, 0, 0, 0);
+// 2월 2일 ~ 2월 5일 사이의 로그 생성 (최소 3개 이상)
+const makeHabitLogInputsForHabit = (habitId) => {
+  // 4일 중 랜덤하게 3개 또는 4개 선택
+  const count = Math.random() < 0.5 ? 3 : 4;
+  const indices = [0, 1, 2, 3];
+
+  // 셔플 후 count개 선택
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const selectedIndices = indices.slice(0, count);
+
+  return selectedIndices.map((idx) => {
+    const logDate = new Date(THIS_WEEK_DATES[idx]);
+    logDate.setHours(0, 0, 0, 0);
     return {
       id: ulid(),
       habitId,
-      logDate: date,
+      logDate,
     };
   });
+};
 
-const makeFocusSessionInputsForStudy = (studyId, count, studyIndex) =>
-  xs(count).map((_, i) => {
-    const targetTimes = [30, 45, 60, 90, 120];
-    const targetTime = targetTimes[i % targetTimes.length];
-    const activeTime = targetTime - Math.floor(Math.random() * 15);
-    const createdAt = new Date();
-    createdAt.setDate(createdAt.getDate() - (15 - studyIndex) - i);
-    createdAt.setHours(9 + i * 2, 0, 0, 0); // 시간도 다르게
+// 포커스 세션 생성 (각 스터디당 10~20개, 세션당 최대 8점)
+const makeFocusSessionInputsForStudy = (studyId) => {
+  const sessionCount = randomInt(10, 20);
+  return xs(sessionCount).map(() => {
+    const targetTimes = [15, 30, 45, 60, 90, 120];
+    const targetTime = randomPick(targetTimes);
+    const activeTime = targetTime - randomInt(0, Math.floor(targetTime * 0.2));
+
+    const createdAt = new Date(randomPick(THIS_WEEK_DATES));
+    createdAt.setHours(randomInt(6, 23), randomInt(0, 59), 0, 0);
+
     return {
       id: ulid(),
       studyId,
       targetTime,
-      activeTime: Math.max(10, activeTime),
-      pauseUsed: i % 2 === 0,
-      earnedPoints: Math.floor(activeTime / 10) * 10,
+      activeTime: Math.max(5, activeTime),
+      pauseUsed: Math.random() < 0.3,
+      earnedPoints: randomInt(1, 8),
       createdAt,
     };
   });
+};
 
-const makeEmojiInputsForStudy = (studyId, count, studyIndex) =>
-  xs(count).map((_, i) => {
-    const createdAt = new Date();
-    createdAt.setDate(
-      createdAt.getDate() - Math.floor(Math.random() * 10) - studyIndex,
-    );
-    createdAt.setHours(
-      Math.floor(Math.random() * 24),
-      Math.floor(Math.random() * 60),
-      0,
-      0,
-    );
+const makeEmojiInputsForStudy = (studyId) => {
+  const emojiCount = randomInt(5, 20);
+  return xs(emojiCount).map(() => {
+    const createdAt = new Date(randomPick(THIS_WEEK_DATES));
+    createdAt.setHours(randomInt(0, 23), randomInt(0, 59), 0, 0);
     return {
       id: ulid(),
       studyId,
-      emoji: EMOJIS[i % EMOJIS.length],
+      emoji: randomPick(EMOJIS),
       createdAt,
     };
   });
+};
 
 const resetDb = (prisma) =>
   prisma.$transaction([
@@ -243,10 +206,7 @@ const seedStudies = async (prisma) => {
 };
 
 const seedHabits = async (prisma, studies) => {
-  const habitCounts = [3, 2, 2, 1, 3];
-  const data = studies.flatMap((s, i) =>
-    makeHabitInputsForStudy(s.id, habitCounts[i] || 2, i * 2, i),
-  );
+  const data = studies.flatMap((s) => makeHabitInputsForStudy(s.id));
 
   const ids = data.map((h) => h.id);
   await prisma.habit.createMany({ data });
@@ -257,30 +217,21 @@ const seedHabits = async (prisma, studies) => {
 };
 
 const seedHabitLogs = async (prisma, habits) => {
-  const logCounts = [5, 3, 4, 2, 5, 1, 3, 4, 2, 5, 3];
-  const data = habits.flatMap((h, i) =>
-    makeHabitLogInputsForHabit(h.id, logCounts[i % logCounts.length]),
-  );
-
+  const data = habits.flatMap((h) => makeHabitLogInputsForHabit(h.id));
   await prisma.habitLog.createMany({ data });
+  return data.length;
 };
 
 const seedFocusSessions = async (prisma, studies) => {
-  const sessionCounts = [5, 3, 4, 2, 6];
-  const data = studies.flatMap((s, i) =>
-    makeFocusSessionInputsForStudy(s.id, sessionCounts[i] || 3, i),
-  );
-
+  const data = studies.flatMap((s) => makeFocusSessionInputsForStudy(s.id));
   await prisma.focusSession.createMany({ data });
+  return data.length;
 };
 
 const seedEmojis = async (prisma, studies) => {
-  const emojiCounts = [12, 7, 9, 5, 15];
-  const data = studies.flatMap((s, i) =>
-    makeEmojiInputsForStudy(s.id, emojiCounts[i] || 5, i),
-  );
-
+  const data = studies.flatMap((s) => makeEmojiInputsForStudy(s.id));
   await prisma.studyEmoji.createMany({ data });
+  return data.length;
 };
 
 async function main(prisma) {
@@ -297,16 +248,16 @@ async function main(prisma) {
   console.log(`✅ ${studies.length}개의 스터디 생성 완료`);
 
   const habits = await seedHabits(prisma, studies);
-  console.log(`✅ ${habits.length}개의 습관 생성 완료`);
+  console.log(`✅ ${habits.length}개의 습관 생성 완료 (스터디당 6개)`);
 
-  await seedHabitLogs(prisma, habits);
-  console.log('✅ 습관 로그 생성 완료');
+  const logCount = await seedHabitLogs(prisma, habits);
+  console.log(`✅ ${logCount}개의 습관 로그 생성 완료 (2/2~2/5)`);
 
-  await seedFocusSessions(prisma, studies);
-  console.log('✅ 집중 세션 생성 완료');
+  const sessionCount = await seedFocusSessions(prisma, studies);
+  console.log(`✅ ${sessionCount}개의 집중 세션 생성 완료`);
 
-  await seedEmojis(prisma, studies);
-  console.log('✅ 이모지 생성 완료');
+  const emojiCount = await seedEmojis(prisma, studies);
+  console.log(`✅ ${emojiCount}개의 이모지 생성 완료`);
 
   console.log('✅ 데이터 시딩 완료');
 }

@@ -96,6 +96,7 @@ async function findById(id) {
       },
       habits: {
         where: { endDate: null },
+        orderBy: { createdAt: 'asc' },
         select: {
           id: true,
           title: true,
@@ -186,7 +187,9 @@ async function findByIds(ids) {
   });
 
   // 원래 순서대로 정렬
-  const ordered = ids.map((id) => studies.find((s) => s.id === id)).filter(Boolean);
+  const ordered = ids
+    .map((id) => studies.find((s) => s.id === id))
+    .filter(Boolean);
 
   return ordered.map((study) => ({
     ...study,
