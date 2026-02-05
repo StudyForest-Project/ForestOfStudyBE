@@ -165,6 +165,34 @@ async function remove(id) {
   });
 }
 
+// 여러 스터디 조회 (최근 본 스터디용)
+async function findByIds(ids) {
+  const studies = await prisma.study.findMany({
+    where: { id: { in: ids } },
+    select: {
+      id: true,
+      title: true,
+      nickname: true,
+      description: true,
+      backgroundImage: true,
+      totalPoint: true,
+      createdAt: true,
+      updatedAt: true,
+      emojis: {
+        select: { emoji: true },
+      },
+    },
+  });
+
+  // 원래 순서대로 정렬
+  const ordered = ids.map((id) => studies.find((s) => s.id === id)).filter(Boolean);
+
+  return ordered.map((study) => ({
+    ...study,
+    emojis: transformEmojiCounts(study.emojis),
+  }));
+}
+
 // 비밀번호 검증
 async function verifyPassword(studyId, password) {
   const study = await prisma.study.findUnique({
@@ -182,6 +210,7 @@ async function verifyPassword(studyId, password) {
 export const studiesRepository = {
   findPaged,
   findById,
+  findByIds,
   create,
   update,
   remove,

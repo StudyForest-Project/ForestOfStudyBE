@@ -37,6 +37,28 @@ studiesRouter.get('/', async (req, res) => {
   res.json(studiesList);
 });
 
+// 최근 본 스터디 조회
+//METHOD:POST /studies/recent
+studiesRouter.post('/recent', async (req, res) => {
+  const { ids } = req.body;
+
+  // 입력 검증
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    throw new BadRequestException(ERROR_MESSAGE.STUDY_IDS_REQUIRED);
+  }
+
+  if (ids.length > 3) {
+    throw new BadRequestException(ERROR_MESSAGE.STUDY_IDS_MAX);
+  }
+
+  // ID 유효성 검증
+  ids.forEach((id) => validateId(id));
+
+  const studies = await studiesRepository.findByIds(ids);
+
+  res.status(HTTP_STATUS.OK).json({ studies });
+});
+
 // 스터디 상세조회
 //METHOD:GET studies/:studyId
 studiesRouter.get('/:studyId', async (req, res) => {
