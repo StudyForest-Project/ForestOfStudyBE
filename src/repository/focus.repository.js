@@ -3,8 +3,7 @@ import { ulid } from 'ulid';
 import { calculatePoints } from '#utils/point.utils.js';
 import { STATS, TIMER } from '#constants';
 import { formatRecentTimeList } from '#utils/timer.utils.js';
-import { getWeeklyDates } from '#utils/dateRange.utils.js';
-import dayjs from 'dayjs';
+import { getWeeklyDates, getKSTStartOfDay } from '#utils/dateRange.utils.js';
 
 /**
  * 집중 페이지 진입 시 정보 조회
@@ -80,8 +79,8 @@ async function saveFocusResult({ studyId, targetTime, activeTime, pauseUsed }) {
  * 포인트 통계
  */
 async function getPointStatsData(studyId) {
-  const weeklyDates = getWeeklyDates(); // 이번주 가져오기
-  const monday = dayjs.utc(weeklyDates[0]).startOf('day').toDate(); // 월요일 00:00:00 기준
+  const weeklyDates = getWeeklyDates(); // 이번주 가져오기 (한국 시간 기준)
+  const monday = getKSTStartOfDay(weeklyDates[0]); // 월요일 00:00:00 기준 (한국 시간)
 
   // 일주일 데이터
   const weeklySessions = await prisma.focusSession.findMany({
@@ -102,8 +101,8 @@ async function getPointStatsData(studyId) {
  * 집중 통계
  */
 async function getFocusStatsData(studyId) {
-  const weeklyDates = getWeeklyDates();
-  const monday = dayjs.utc(weeklyDates[0]).startOf('day').toDate();
+  const weeklyDates = getWeeklyDates(); // 한국 시간 기준
+  const monday = getKSTStartOfDay(weeklyDates[0]); // 한국 시간 기준
 
   const totalData = await prisma.focusSession.aggregate({
     where: { studyId },

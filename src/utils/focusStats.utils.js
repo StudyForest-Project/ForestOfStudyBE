@@ -1,6 +1,5 @@
-import dayjs from 'dayjs';
 import { DATE, STATS } from '#constants';
-import { formatDate, getWeeklyDates } from './dateRange.utils.js';
+import { formatDate, getWeeklyDates, getTodayKST } from './dateRange.utils.js';
 
 /**
  * 포인트 통계 데이터
@@ -9,7 +8,7 @@ export function processPointStats(
   weeklySessions,
   weekDates = getWeeklyDates(),
 ) {
-  const todayDate = formatDate(dayjs.utc()); // 오늘
+  const todayDate = getTodayKST(); // 오늘 (한국 시간 기준)
 
   // 날짜 별 표인트 계산
   const pointsByDate = weeklySessions.reduce((acc, session) => {
@@ -62,7 +61,7 @@ export function processFocusStats(
   weeklySessions,
   weekDates = getWeeklyDates(),
 ) {
-  const todayDate = formatDate(dayjs.utc());
+  const todayDate = getTodayKST(); // 한국 시간 기준
 
   // 날짜 별 총 집중 시간, 최장 집중 시간 계산
   const focusByDate = weeklySessions.reduce((acc, session) => {
