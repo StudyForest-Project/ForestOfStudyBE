@@ -95,6 +95,7 @@ async function findById(id) {
         select: { emoji: true },
       },
       habits: {
+        where: { endDate: null },
         select: {
           id: true,
           title: true,
